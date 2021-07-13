@@ -1,0 +1,49 @@
+import store from './index'
+
+const defaultWidth = window.innerWidth
+const defaultHeight = window.innerHeight - 48
+
+const canvas = {
+  state: () => ({
+    mode: 'edit',
+    style: { width: defaultWidth, height: defaultHeight },
+    offset: { x: 0, y: 0 },
+    scale: 100,
+    list: [],
+  }),
+  mutations: {
+    SET_MODE(state, value) {
+      state.mode = value
+    },
+    SET_SCALE(state, value) {
+      state.scale = value
+    },
+    SET_OFFSET(state, { x, y }) {
+      state.offset.x = x
+      state.offset.y = y
+    },
+    SET_LIST(state, componentData = []) {
+      state.list = componentData
+    },
+    ADD_COMPONENT(state, { component, index }) {
+      if (index !== undefined) {
+        state.list.splice(index, 0, component)
+      } else {
+        state.list.push(component)
+      }
+    },
+    DEL_COMPONENT(state, index) {
+      if (index === undefined) {
+        index = store.state.widget.selectionIndex
+      }
+
+      if (index === store.state.widget.selectionIndex) {
+        store.commit('SET_SELECTION', { component: null, index: null })
+      }
+
+      state.list.splice(index, 1)
+    },
+  }
+}
+
+export default canvas
