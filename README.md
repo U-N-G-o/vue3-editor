@@ -1,24 +1,51 @@
-# vue3-editor-demo
+## 项目简介
 
-## Project setup
-```
-yarn install
-```
+该项目是对 Vue3 技术栈以及可视化拖拽组件的相关实践，项目受到**墨刀**的在线原型设计功能启发，目标是实现提供一些组件并能够进行简易的在线设计。
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
+> [在线预览](https://u-n-g-o.github.io/vue3-editor)
 
-### Compiles and minifies for production
-```
-yarn build
-```
+### Usage
 
-### Lints and fixes files
 ```
-yarn lint
+本地运行
+yarn install || npm install
+yarn start || npm start
+
+打包
+yarn build || npm run build
+
+发布
+yarn deploy || npm run deploy
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### 已实现功能
+
+1. 工作区画布
+- [x] 支持**滚轮**和**鼠标中键**移动工作区位置
+- [x] 支持百分比**缩放**
+2. 组件栏
+- [x] 包括 text、button、image、rect 组件
+- [x] 支持**拖拽**组件到工作区画板
+3. 自定义组件**属性**
+4. 自定义组件**点击事件**
+5. 选择组件**动画效果**
+6. 组件在画布上的**拖拽**和**旋转**
+7. 工作区基本操作
+- [x] **undo**、**redo**
+8. 右键菜单
+- [x] **复制**、**剪切**、**粘贴**、**删除**
+- [x] **锁定**、**解锁**选中组件
+- [x] 调整组件图层
+9. 插入图片
+- [x] 支持批量从文件夹直接拖拽到画布
+10. **清空**画布内容
+11.  **预览**效果
+12. 快捷键
+
+### 待实现功能
+
+- [ ] 优化选中框在缩放时显示效果
+- [ ] 添加更多可拖拽组件
+- [ ] 组件吸附功能
+- [ ] 多组件组合和拆分
+- [ ] 用户引导

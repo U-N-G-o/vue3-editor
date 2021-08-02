@@ -14,7 +14,7 @@
 </template>
 
 <script>
-  import { defineComponent, computed, onMounted, onUnmounted } from 'vue';
+  import { defineComponent, computed, onMounted } from 'vue';
   import { useStore } from 'vuex'
   import Top from './components/Top.vue';
   import LeftPanel from './components/LeftPanel.vue';

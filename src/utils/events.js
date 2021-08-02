@@ -2,7 +2,10 @@
 const events = {
     redirect(url) {
         if (url) {
-            window.location.href = url
+            if (url.includes('http://')) {
+                window.open(`${url}`)
+            }
+            window.open(`http://${url}`)
         }
     },
 

@@ -23,7 +23,7 @@
 </template>
 
 <script>
-  import { defineComponent, watch, computed } from 'vue'
+  import { defineComponent, computed } from 'vue'
   import { useStore } from 'vuex'
 
   export default defineComponent({
@@ -62,7 +62,7 @@
         store.commit('HIDE_CONTEXTMENU')
       }
 
-      const deleteComponent = (e) => {
+      const deleteComponent = () => {
         store.commit('DEL_COMPONENT')
         store.commit('RECORD')
         store.commit('HIDE_CONTEXTMENU')

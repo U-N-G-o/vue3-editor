@@ -14,9 +14,8 @@
 </template>
 
 <script>
-  import { defineComponent, ref, computed, onMounted } from 'vue'
+  import { defineComponent, ref, onMounted } from 'vue'
   import { useStore } from 'vuex'
-  import runAnimation from '@/utils/runAnimation'
   import calculateShape from '@/utils/calculateShape'
   import { mod360 } from '@/utils/translate'
   import { RedoOutlined, LockOutlined } from '@ant-design/icons-vue'
@@ -46,7 +45,6 @@
     },
     setup(props) {
       const store = useStore()
-      const offset = computed(() => store.state.canvas.offset)
       const editMode = ref(false)
       const pointList = ref(['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'])
       const initialAngle = { // 每个点对应的初始角度
@@ -80,7 +78,6 @@
       }
 
       const getPointStyle = (point) => {
-        const cursor = point + '-resize'
         const { width, height } = props.defaultStyle
         const hasN = /n/.test(point)
         const hasS = /s/.test(point)
@@ -126,7 +123,7 @@
         pointList.value.forEach(point => {
           const angle = mod360(initialAngle[point] + rotate)
           const len = angleToCursor.length
-          while (true) {
+          while (point) {
             lastMatchIndex = (lastMatchIndex + 1) % len
             const angleLimit = angleToCursor[lastMatchIndex]
             if (angle < 23 || angle >= 338) {
@@ -169,7 +166,7 @@
               store.commit('SET_POSITION', { left: position.left, top: position.top })
             }
 
-            const up = (e) => {
+            const up = () => {
               hasMove && store.commit('RECORD')
               document.removeEventListener('mousemove', move)
               document.removeEventListener('mouseup', up)

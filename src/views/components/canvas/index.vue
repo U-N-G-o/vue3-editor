@@ -1,16 +1,19 @@
 <template>
-  <div class="canvas" @drop="handleDrop" @dragover="handleDragOver" @mousedown="handleMouseDown" :style="handleStyle">
+  <div class="canvas" ref="canvasDom" @drop="handleDrop" @dragover="handleDragOver" @mousedown="handleMouseDown"
+    :style="handleStyle">
     <Grid />
     <ContextMenu />
-    <BoxBorder v-if="componentData.length !== 0" v-for="(item, index) in componentData" :key="item.id"
-      :defaultStyle="item.style" :style="getShapeStyle(item.style)" :active="item === selection" :element="item"
-      :index="index" :class="{ lock: item.isLock }">
-      <component v-if="item.component != 'v-text'" class="component" :is="item.component"
-        :style="getComponentStyle(item.style)" :propValue="item.propValue" :element="item"
-        :id="'component' + item.id" />
-      <component v-else class="component" :is="item.component" :style="getComponentStyle(item.style)"
-        :propValue="item.propValue" :input="handleInput" :element="item" :id="'component' + item.id" />
-    </BoxBorder>
+    <div v-if="componentData.length !== 0">
+      <BoxBorder v-for="(item, index) in componentData" :key="item.id" :defaultStyle="item.style"
+        :style="getShapeStyle(item.style)" :active="item === selection" :element="item" :index="index"
+        :class="{ lock: item.isLock }">
+        <component v-if="item.component != 'v-text'" class="component" :is="item.component"
+          :style="getComponentStyle(item.style)" :propValue="item.propValue" :element="item"
+          :id="'component' + item.id" />
+        <component v-else class="component" :is="item.component" :style="getComponentStyle(item.style)"
+          :propValue="item.propValue" :input="handleInput" :element="item" :id="'component' + item.id" />
+      </BoxBorder>
+    </div>
   </div>
 </template>
 
@@ -20,8 +23,8 @@
   import Grid from './Grid'
   import BoxBorder from './BoxBorder'
   import ContextMenu from './ContextMenu'
-  import { deepCopy, getBase64 } from '@/utils/utils'
-  import { getStyle, getComponentRotatedStyle } from '@/utils/style'
+  import { deepCopy } from '@/utils/utils'
+  import { getStyle } from '@/utils/style'
   import generateID from '@/utils/generateID'
   import cstore from '@/components/component-store'
 
@@ -39,6 +42,8 @@
       const canvasScale = computed(() => { return store.state.canvas.scale })
       const offset = computed(() => store.state.canvas.offset)
       const copyData = computed(() => store.state.copy.copyData)
+      const canvasDom = ref()
+      const isCtrlDown = ref(false)
 
       const handleStyle = computed(() => {
         const ratio = canvasScale.value / 100
@@ -112,7 +117,7 @@
             store.commit('SET_OFFSET', { x, y })
           }
 
-          const up = (e) => {
+          const up = () => {
             document.removeEventListener('mousemove', move)
             document.removeEventListener('mouseup', up)
           }
@@ -137,10 +142,6 @@
         }
       }
 
-      const deselectCurComponent = (e) => {
-        store.commit('ADD_COMPONENT', { component: null, index: null })
-      }
-
       const getShapeStyle = (style) => {
         const result = {};
         ['width', 'height', 'top', 'left', 'rotate'].forEach(attr => {
@@ -160,7 +161,7 @@
 
       const handleInput = (element, value) => {
         // 根据文本组件高度调整 shape 高度
-        // console.log(element, value)s
+        console.log(element, value)
       }
 
       const resetID = (data) => {
@@ -183,14 +184,74 @@
         store.commit('RECORD')
       }
 
+      const onOffsetChange = (x, y) => {
+        store.commit('SET_OFFSET', { x, y })
+      }
+
+      const onScaleChange = (scale) => {
+        store.commit('SET_SCALE', scale)
+      }
+
+      const onZoom = (nextScale, originX, originY) => {
+        const scale = canvasScale.value
+        const { x, y } = offset.value
+        nextScale = Math.min(Math.max(nextScale, 20), 400)
+        const scaleD = nextScale / scale
+        if (scaleD === 1) return
+        const newX = originX + scaleD * (x - originX)
+        const newY = originY + scaleD * (y - originY)
+        onOffsetChange(newX, newY)
+        onScaleChange(nextScale)
+      }
+
+      const handleWheel = (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (isCtrlDown.value) {
+          const scale = canvasScale.value
+          const delta = Math.max(-1, Math.min(e.deltaY, 1))
+          const { top, left, right, bottom } = canvasDom.value.getBoundingClientRect()
+          const centerX = (left + right) / 2
+          const centerY = (top + bottom) / 2
+
+          const nextScale = scale <= 100 ? scale - delta * 5 : scale - scale * delta * 0.05
+          const originX = e.pageX - centerX
+          const originY = e.pageY - centerY
+          onZoom(nextScale, originX, originY)
+        } else {
+          onOffsetChange(offset.value.x - e.deltaX, offset.value.y - e.deltaY)
+        }
+      }
+
+      const keyDown = (e) => {
+        if (e.keyCode == 17) {
+          isCtrlDown.value = true
+        }
+      }
+
+      const keyUp = (e) => {
+        if (e.keyCode == 17) {
+          isCtrlDown.value = false
+        }
+      }
+
       onMounted(() => {
         restore()
         window.addEventListener('contextmenu', handleMouseDown)
+        window.addEventListener('keydown', keyDown)
+        window.addEventListener('keyup', keyUp)
+        canvasDom.value.addEventListener('wheel', handleWheel, { passive: false })
       })
 
-      onUnmounted(() => window.removeEventListener('contextmenu', handleMouseDown))
+      onUnmounted(() => {
+        window.removeEventListener('contextmenu', handleMouseDown)
+        window.removeEventListener('keydown', keyDown)
+        window.removeEventListener('keyup', keyUp)
+        canvasDom.value.removeEventListener('wheel', handleWheel, { passive: false })
+      })
 
       return {
+        canvasDom,
         componentData,
         selection,
         handleStyle,
@@ -212,7 +273,7 @@
     width: 100%;
     height: 100%;
     display: flex;
-    justy-content: center;
+    justify-content: center;
     align-items: center;
 
     .lock {

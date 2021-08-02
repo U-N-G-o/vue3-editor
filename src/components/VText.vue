@@ -11,8 +11,7 @@
 </template>
 
 <script>
-  import { defineComponent, ref, computed, watch } from 'vue'
-  import { useStore } from 'vuex'
+  import { defineComponent, ref } from 'vue'
   import { keycodes } from '@/utils/shortcutKey'
   import { selectText } from '@/utils/utils'
 
@@ -28,7 +27,6 @@
     },
     emit: [],
     setup(props, context) {
-      const store = useStore()
       const canEdit = ref(false)
       const isCtrlDown = ref(false)
       const text = ref(null)
@@ -70,8 +68,8 @@
         context.emit('input', props.element, e.target.innerHTML)
       }
 
-      const handleBlur = (e) => {
-        props.element.propValue = e.target.innerHTML || '&nbsp;'
+      const handleBlur = () => {
+        // props.propValue = e.target.innerHTML || '&nbsp;'
         canEdit.value = false
       }
 

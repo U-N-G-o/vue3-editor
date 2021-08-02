@@ -24,7 +24,7 @@
   import { useStore } from 'vuex'
 
   export default defineComponent({
-    setup(context) {
+    setup() {
       const isShowEvent = ref(false)
       const eventURL = ref('')
       const eventActiveName = ref('redirect')

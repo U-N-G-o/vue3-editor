@@ -5,18 +5,18 @@
       <div class="canvas" style="width: 100%; height: 100%;">
         <component v-for="item in componentData" :key="item.id" :id="'preview' + item.id" class="component"
           :is="item.component" :style="getStyle(item.style)" :propValue="item.propValue" :element="item"
-          @click="handleClick(item.event)" />
+          @click="handleClick(item.events)" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-  import { defineComponent, ref, computed, onMounted } from 'vue'
+  import { defineComponent, computed, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import { getStyle } from '@/utils/style'
-  import { changeStyleWithScale } from '@/utils/translate'
   import runAnimation from '@/utils/runAnimation'
+  import { events } from '@/utils/events'
 
   export default defineComponent({
     props: {
@@ -25,7 +25,7 @@
         default: false,
       },
     },
-    setup(context) {
+    setup() {
       const store = useStore()
       const componentData = computed(() => store.state.canvas.list)
       const close = () => {
@@ -39,10 +39,17 @@
         })
       })
 
+      const handleClick = (eventsList) => {
+        Object.keys(eventsList).forEach(event => {
+          events[event](eventsList[event])
+        })
+      }
+
       return {
         componentData,
         getStyle,
-        close
+        close,
+        handleClick
       }
     }
   })

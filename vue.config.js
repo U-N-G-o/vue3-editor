@@ -1,10 +1,12 @@
 module.exports = {
-  // 避免Eslint报错
-  devServer: {
-    overlay: {
-      warning: true,
-      errors: true
-    }
-  },
-  lintOnSave: false
+  // devServer: {
+  //   overlay: {
+  //     warnings: false, //不显示警告
+  //     errors: false	//不显示错误
+  //   }
+  // },
+  // lintOnSave: false, //关闭eslint检查
+  publicPath: process.env.NODE_ENV === 'production'
+    ? '/vue3-editor/'
+    : '/'
 }

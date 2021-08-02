@@ -102,7 +102,7 @@
           component: 'PlayCircleOutlined',
           style: 'default',
           name: '预览',
-          todo: () => handlePreview
+          todo: () => handlePreview()
         },
         {
           icon: 'save',
@@ -139,16 +139,9 @@
 
       const reName = ref(false)
 
-      const tabindex = ref(-1)
-
-      const scaleRt = ref('100')
+      const scaleRt = computed(() => { return store.state.canvas.scale })
 
       const showPreview = ref(false)
-
-      const handleSelect = (key) => {
-        leftList.value.map(item => item.style = 'default')
-        leftList.value[key].style = 'primary'
-      }
 
       const handleRename = (e) => {
         projectName.value = e.target.innerHTML

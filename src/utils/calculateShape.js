@@ -1,6 +1,5 @@
 const calculateShape = (direction, e, props, border, store) => {
-  const startX = e.clientX
-  const startY = e.clientY
+
   const position = { ...props.defaultStyle }
   const startLeft = position.left
   const startTop = position.top
