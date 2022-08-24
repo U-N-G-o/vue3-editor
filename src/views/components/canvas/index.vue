@@ -40,6 +40,7 @@
       const componentData = computed(() => { return store.state.canvas.list })
       const selection = computed(() => { return store.state.widget.selection })
       const canvasScale = computed(() => { return store.state.canvas.scale })
+      const canvasStyle = computed(() => store.state.canvas.style)
       const offset = computed(() => store.state.canvas.offset)
       const copyData = computed(() => store.state.copy.copyData)
       const canvasDom = ref()
@@ -47,7 +48,10 @@
 
       const handleStyle = computed(() => {
         const ratio = canvasScale.value / 100
+        const { width, height } = canvasStyle.value
         return {
+          width: width + 'px',
+          height: height + 'px',
           transform: `translate(${offset.value.x}px, ${offset.value.y}px) scale(${ratio})`
         }
       })

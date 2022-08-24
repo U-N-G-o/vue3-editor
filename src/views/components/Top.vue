@@ -22,9 +22,17 @@
       <label contenteditable="true" @input="handleRename">{{projectName}}</label>
     </div>
     <div class="toolbar-right">
-      <span>画布比例</span>
-      <a-input-number v-model:value="scaleRt" :min="0" :max="200" :formatter="value => `${value}%`"
-        :parser="value => value.replace('%', '')" size="small" />
+      <div>
+        <span>画布尺寸：</span>
+        <a-input-number v-model:value="canvasStyle.width" @change="handleChangeWidth" size="small" />
+        *
+        <a-input-number v-model:value="canvasStyle.height" @change="handleChangeHeight" size="small" />
+      </div>
+      <div>
+        <span>缩放比例：</span>
+        <a-input-number v-model:value="scaleRt" :min="50" :max="200" :formatter="value => `${value}%`"
+          :parser="value => value.replace('%', '')" @change="handleChangeScale" size="small" />
+      </div>
     </div>
     <Preview v-if="mode === 'preview'" v-model="showPreview" />
     <input type="file" @change="handleUpload" id="upload" hidden />
@@ -68,6 +76,7 @@
       const store = useStore()
       const selection = computed(() => store.state.widget.selection)
       const mode = computed(() => store.state.canvas.mode)
+      const canvasStyle = computed(() => store.state.canvas.style)
       const leftList = ref([
         {
           icon: 'undo',
@@ -178,6 +187,18 @@
 
       }
 
+      const handleChangeWidth = (value) => {
+        store.commit('SET_STYLE', { width: value, height: canvasStyle.value.height })
+      }
+
+      const handleChangeHeight = (value) => {
+        store.commit('SET_STYLE', { width: canvasStyle.value.width, height: value })
+      }
+
+      const handleChangeScale = (value) => {
+        store.commit('SET_SCALE', value)
+      }
+
       const clearCanvas = () => {
         store.commit('SET_LIST', [])
         store.commit('RECORD')
@@ -208,13 +229,17 @@
       return {
         selection,
         mode,
+        canvasStyle,
         leftList,
         projectName,
         reName,
         scaleRt,
         showPreview,
         handleRename,
-        handleUpload
+        handleUpload,
+        handleChangeWidth,
+        handleChangeHeight,
+        handleChangeScale
       }
     }
   })
@@ -261,7 +286,7 @@
     }
 
     .toolbar-right {
-      min-width: 160px;
+      min-width: 428px;
       height: 32px;
       display: flex;
       justify-content: space-between;

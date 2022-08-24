@@ -1,7 +1,9 @@
 import store from './index'
 
-const defaultWidth = window.innerWidth
-const defaultHeight = window.innerHeight - 48
+const defaultWidth = 1920
+const defaultHeight = 1080
+const maxScale = 200
+const minScale = 50
 
 const canvas = {
   state: () => ({
@@ -16,11 +18,21 @@ const canvas = {
       state.mode = value
     },
     SET_SCALE(state, value) {
-      state.scale = value
+      let nextScale = value
+      if (value < minScale) {
+        nextScale = minScale
+      } else if (value > maxScale) {
+        nextScale = maxScale
+      }
+      state.scale = nextScale
     },
     SET_OFFSET(state, { x, y }) {
       state.offset.x = x
       state.offset.y = y
+    },
+    SET_STYLE(state, { width, height }) {
+      state.style.width = width
+      state.style.height = height
     },
     SET_LIST(state, componentData = []) {
       state.list = componentData
