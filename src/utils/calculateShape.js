@@ -1,74 +1,44 @@
-const calculateShape = (direction, e, props, border, store) => {
+import { calculateRotatedPointCoordinate, getCenterPoint } from './translate'
 
-  const position = { ...props.defaultStyle }
-  const startLeft = position.left
-  const startTop = position.top
-  const width = position.width
-  const height = position.height
+export default function calculateShape(name, style, curPositon, symmetricPoint) {
+  // 通过对角线获取新中心
+  const newCenterPoint = getCenterPoint(curPositon, symmetricPoint)
+  // 当前鼠标位置转化为 rotated 之前的位置
+  const rotatedCurPostion = calculateRotatedPointCoordinate(curPositon, newCenterPoint, -style.rotate)
+  // 对称点位置转化为 rotated 之前的位置
+  const rotatedSymmetricPoint = calculateRotatedPointCoordinate(symmetricPoint, newCenterPoint, -style.rotate)
 
-  const rect = border.value.getBoundingClientRect()
-  const realTop = rect.top
-  const realLeft = rect.left
-  const offsetY = realTop - startTop
-  const offsetX = realLeft - startLeft
+  const { minWidth, minHeight } = style
 
-  let hasMove = false
+  if (name.length === 2) {
+    // 如果是选中了四个角上的点那么意味着宽高都会改变
+    const newWidth = name.includes('e') ? rotatedCurPostion.x - rotatedSymmetricPoint.x : rotatedSymmetricPoint.x - rotatedCurPostion.x
+    const newHeight = name.includes('s') ?  rotatedCurPostion.y - rotatedSymmetricPoint.y : rotatedSymmetricPoint.y - rotatedCurPostion.y
+    
+    if (newWidth >= minWidth && newHeight >= minHeight) {
+      style.width = Math.round(newWidth)
+      style.height = Math.round(newHeight)
+      style.left = Math.min(rotatedCurPostion.x, rotatedSymmetricPoint.x)
+      style.top = Math.min(rotatedCurPostion.y, rotatedSymmetricPoint.y)
+    }
+  } else {
+    // 选中四边的中点时，意味着长和宽只改变一项
+    // 根据当前位置和对称点位置可以得出长或宽
+    const distanceX = name === 'e' ? rotatedCurPostion.x - rotatedSymmetricPoint.x : rotatedSymmetricPoint.x - rotatedCurPostion.x
+    const distanceY = name === 's' ? rotatedCurPostion.y - rotatedSymmetricPoint.y : rotatedSymmetricPoint.y - rotatedCurPostion.y
 
-  const move = (moveEvent) => {
-    hasMove = true
-    const curX = moveEvent.clientX
-    const curY = moveEvent.clientY
-    const disLX = curX - offsetX - startLeft
-    const disRX = disLX - width
-    const disTY = curY - offsetY - startTop
-    const disBY = disTY - height
-
-    if (direction.includes('e')) {
-      if (disLX <= 0) {
-        position.width = 0
-      } else {
-        position.width = disLX
+    if (distanceY >= minHeight && ['n', 's'].includes(name)) {
+      style.height = distanceY
+      if (name === 'n') {
+        style.top = newCenterPoint.y - distanceY / 2
       }
     }
 
-    if (direction.includes('w')) {
-      if (disRX < 0) {
-        position.width = width - disLX
-        position.left = curX
-      } else {
-        position.width = 0
-        position.left = startLeft + width
+    if (distanceX >= minWidth && ['w', 'e'].includes(name)) {
+      style.width = distanceX
+      if (name === 'w') {
+        style.left = newCenterPoint.x - distanceX / 2
       }
     }
-
-    if (direction.includes('n')) {
-      if (disBY < 0) {
-        position.height = height - disTY
-        position.top = curY - offsetY
-      } else {
-        position.height = 0
-        position.top = startTop + height
-      }
-    }
-
-    if (direction.includes('s')) {
-      if (disTY < 0) {
-        position.height = 0
-      } else {
-        position.height = height + disBY
-      }
-    }
-    store.commit('SET_POSITION', position)
   }
-
-  const up = () => {
-    hasMove && store.commit('RECORD')
-    document.removeEventListener('mousemove', move)
-    document.removeEventListener('mouseup', up)
-  }
-
-  document.addEventListener('mousemove', move)
-  document.addEventListener('mouseup', up)
 }
-
-export default calculateShape

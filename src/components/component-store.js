@@ -21,6 +21,8 @@ const cstore = [
     style: {
       width: 200,
       height: 22,
+      minWidth: 100,
+      minHeight: 22,
       fontSize: 14,
       fontWeight: 500,
       lineHeight: '',
@@ -37,6 +39,8 @@ const cstore = [
     style: {
       width: 100,
       height: 34,
+      minWidth: 40,
+      minHeight: 24,
       borderWidth: 1,
       borderColor: '#000000',
       borderRadius: '',
@@ -57,6 +61,8 @@ const cstore = [
     style: {
       width: 300,
       height: 200,
+      minWidth: 100,
+      minHeight: 100,
       borderRadius: '',
     },
   },
@@ -68,6 +74,8 @@ const cstore = [
     style: {
       width: 200,
       height: 200,
+      minWidth: 24,
+      minHeight: 24,
       fontSize: 14,
       fontWeight: 500,
       lineHeight: '',

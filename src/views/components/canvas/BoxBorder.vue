@@ -178,10 +178,56 @@
         }
       }
 
-      const handleMouseDownOnPoint = (point, e) => {
+      const handleMouseDownOnPoint = (pointName, e) => {
         e.stopPropagation()
         e.preventDefault()
-        calculateShape(point, e, props, border, store)
+
+        // 中心点位置
+        const center = {
+          x: position.left + position.width / 2,
+          y: position.top + position.height / 2,
+        }
+
+        const pointRect = e.target.getBoundingClientRect()
+        const canvasRect = document.querySelector('.canvas').getBoundingClientRect()
+        // 点击的点相对于画布的位置，即点在画布上的坐标
+        const pointPosition = {
+          x: pointRect.left - canvasRect.left + 0.5 * pointRect.width,
+          y: pointRect.top - canvasRect.top + 0.5 * pointRect.height
+        }
+
+        // 对称点坐标
+        const symmetricPoint = {
+          x: center.x + (center.x - pointPosition.x),
+          y: center.y + (center.y - pointPosition.y)
+        }
+
+        // 防止第一次点击误触发移动
+        let hasMove = false
+
+        const move = (moveEvent) => {
+          if (!hasMove) {
+            hasMove = true
+            return
+          }
+
+          const curPosition = {
+            x: moveEvent.clientX - canvasRect.left,
+            y: moveEvent.clientY - canvasRect.top,
+          }
+
+          calculateShape(pointName, position, curPosition, symmetricPoint)
+
+          store.commit('SET_POSITION', position)
+        }
+        const up = () => {
+            document.removeEventListener('mousemove', move)
+            document.removeEventListener('mouseup', up)
+            hasMove && store.commit('RECORD')
+        }
+
+        document.addEventListener('mousemove', move)
+        document.addEventListener('mouseup', up)
       }
 
       const handleRotate = (e) => {
